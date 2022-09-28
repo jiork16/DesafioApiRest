@@ -79,5 +79,12 @@ namespace DesafioJordanRodriguesApiRest.Controllers
             
 
         }
+        [HttpGet("{id}/goals")]
+        public async Task<JsonResult> GetGoal(int id)
+        {
+            var user = await _mediator.Send(new GetListAsyncByIdUserGoalQuery() { IdUser = id });
+            return new JsonResult(new { user = user.Data });
+        }
+
     }
 }
