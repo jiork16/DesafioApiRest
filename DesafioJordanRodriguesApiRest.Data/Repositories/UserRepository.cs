@@ -43,7 +43,7 @@ namespace DesafioJordanRodriguesApiRest.Data.Repositories
             using (var ctx = new ChallengeContext())
             {
                 List<DbParameter> parameters = new List<DbParameter>();
-                parameters.Add(new NpgsqlParameter() { ParameterName = "@IdUser", Value = id });
+                parameters.Add(new NpgsqlParameter() { ParameterName = "@IdUser", Value = id, NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Integer });
                 string sqlQuery = @"SELECT sum((public.goaltransactionfunding.quotas)
                                                     * (public.fundingsharevalue.value)
                                                     *(public.currencyindicator.value)) balance,
@@ -67,6 +67,39 @@ namespace DesafioJordanRodriguesApiRest.Data.Repositories
                                                     group by public.fundingsharevalue.date,public.user.id";
                 var query = await EfSqlHelper.ExecuteScalar(ctx, sqlQuery, parameters);
                 return  query;
+            }
+        }
+        public async Task<DataTable> GetSumaryDateAsync(int id, DateTime date)
+        {
+
+            using (var ctx = new ChallengeContext())
+            {
+                List<DbParameter> parameters = new();
+                parameters.Add(new NpgsqlParameter() { ParameterName = "@IdUser", Value = id , NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Integer });
+                parameters.Add(new NpgsqlParameter() { ParameterName = "@Date", Value = date, NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Date });
+                string sqlQuery = @"SELECT sum((public.goaltransactionfunding.quotas)
+                                                    * (public.fundingsharevalue.value)
+                                                    *(public.currencyindicator.value)) balance,
+                                                    sum((public.goaltransaction.amount)
+                                                    *(public.currencyindicator.value )) aportes,
+                                                    public.fundingsharevalue.date,public.user.id
+                                                    FROM public.user inner join public.goal on public.user.id=public.goal.userid
+                                                    join public.funding on public.funding.currencyid=public.user.currencyid
+                                                    join public.goaltransaction on public.goaltransaction.ownerid=public.user.id
+                                                    and public.goaltransaction.currencyid=public.user.currencyid
+                                                    join public.goaltransactionfunding on public.goaltransactionfunding.goalid=public.goal.id
+                                                    and public.goaltransaction.id= public.goaltransactionfunding.transactionid
+                                                    and public.goaltransactionfunding.date=public.goaltransaction.date
+                                                    and public.user.id=public.goaltransaction.ownerid
+                                                    join public.fundingsharevalue on public.fundingsharevalue.fundingid= public.funding.id
+                                                    and  public.fundingsharevalue.date=public.goaltransactionfunding.date
+                                                    join public.currencyindicator on public.currencyindicator.sourcecurrencyid=public.user.currencyid
+                                                    and public.currencyindicator.date=public.goaltransactionfunding.date
+                                                    and public.currencyindicator.sourcecurrencyid=public.goaltransaction.currencyid
+                                                    where public.user.id=@IdUser and  public.currencyindicator.date= @Date
+                                                    group by public.fundingsharevalue.date,public.user.id";
+                var query = await EfSqlHelper.ExecuteScalar(ctx, sqlQuery, parameters);
+                return query;
             }
         }
         public async Task<List<User>> GetListAsync()
