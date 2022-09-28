@@ -12,12 +12,12 @@ namespace DesafioJordanRodriguesApiRest.Domain.Entities
             Goals = new HashSet<Goal>();
         }
 
-        public string Code { get; set; }
-        public string Uuid { get; set; }
-        public string Title { get; set; }
-        public int Id { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
+        public string code { get; set; }
+        public string uuid { get; set; }
+        public string title { get; set; }
+        public int id { get; set; }
+        public DateTime created { get; set; }
+        public DateTime modified { get; set; }
 
         public virtual ICollection<Goal> Goals { get; set; }
     }
