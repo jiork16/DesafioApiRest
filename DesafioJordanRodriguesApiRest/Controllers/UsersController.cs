@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DesafioJordanRodriguesApiRest.Model;
 using System.Collections.Generic;
 using AutoMapper;
+using System;
 
 namespace DesafioJordanRodriguesApiRest.Controllers
 {
@@ -56,67 +57,27 @@ namespace DesafioJordanRodriguesApiRest.Controllers
 
         }
 
-        //// PUT: api/Users/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutUser(int id, User user)
-        //{
-        //    if (id != user.id)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpGet("{id}/Summary/{date}")]
+        public async Task<JsonResult> GetSummaryFecha(int id, string Date)
+        {
+            bool isValid = DateTime.TryParseExact(
+               Date,
+                "dd-MM-yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out DateTime dt);
+            if (isValid)
+            {
+                var user = await _mediator.Send(new GetListAsyncByIdUserSummaryDateQuery() { IdUser = id, Date = dt });
+                return new JsonResult(new { user = user.Data });
+            }
+            else
+            {
+                return new JsonResult(new { result = "Formato de fecha dd-mm-yyyy" });
+            }
 
-        //    _context.Entry(user).State = EntityState.Modified;
+            
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!UserExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
-        //// POST: api/Users
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<User>> PostUser(User user)
-        //{
-        //    _context.Users.Add(user);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetUser", new { id = user.id }, user);
-        //}
-
-        //// DELETE: api/Users/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteUser(int id)
-        //{
-        //    var user = await _context.Users.FindAsync(id);
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.Users.Remove(user);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
-
-        //private bool UserExists(int id)
-        //{
-        //    return _context.Users.Any(e => e.id == id);
-        //}
+        }
     }
 }
