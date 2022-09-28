@@ -24,6 +24,7 @@ namespace DesafioJordanRodriguesApiRest.Application.Features.Command
         }
         public async Task<Result<List<UserResponse>>> Handle(GetListAsyncUserQuery request, CancellationToken cancellationToken)
         {
+            var usersid = await _repository.GetByIdAsync(1);
             var users = await _repository.GetListAsync();
             var mappedUsers = _mapper.Map<List<UserResponse>>(users);
             return Result<List<UserResponse>>.Success(mappedUsers);
