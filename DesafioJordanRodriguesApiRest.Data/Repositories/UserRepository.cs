@@ -11,16 +11,19 @@ using DesafioJordanRodriguesApiRest.Data.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data;
+using DesafioJordanRodriguesApiRest.Application.Features;
 
 namespace DesafioJordanRodriguesApiRest.Data.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly IRepositoryAsync<User> _repository;
+        private readonly IRepositoryAsync<Goal> _repositoryGoal;
         public IQueryable<User> User => _repository.Entities;
-        public UserRepository(IRepositoryAsync<User> repository )
+        public UserRepository(IRepositoryAsync<User> repository, IRepositoryAsync<Goal> repositoryGoal)
         {
             _repository = repository;
+            _repositoryGoal = repositoryGoal;
         }
         public async Task<User> GetByIdAsync(int id)
         {
@@ -106,6 +109,27 @@ namespace DesafioJordanRodriguesApiRest.Data.Repositories
         {
             IQueryable<User> list = _repository.Entities.Include(c => c.Currency);
             return await list.ToListAsync();
-        }        
+        }
+        public async Task<List<GoalResponse>> GetListGoalAsync(int id)
+        {
+           var list = _repositoryGoal.Entities
+                .Where(p => p.userid == id)
+                .Include(Financialentity => Financialentity.Financialentity)
+                .Include(Portfolio => Portfolio.Portfolio)
+                .Select(c => new GoalResponse
+                {
+                    TituloMeta = c.title,
+                    Años = c.years,
+                    AporteMensaul = c.monthlycontribution,
+                    MontoObjetivo = c.targetamount,
+                    InversionInicial = c.initialinvestment,
+                    EntidadFinanciera = c.Financialentity.title,
+                    PortafolioCompleto = c.Portfolio.title,
+                    FechaCreacion = c.created
+                }).ToListAsync();
+
+            return await list;
+
+        }
     }
 }
