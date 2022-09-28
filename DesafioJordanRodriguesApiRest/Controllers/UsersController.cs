@@ -29,18 +29,32 @@ namespace DesafioJordanRodriguesApiRest.Controllers
         }
 
         //// GET: api/Users/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<User>> GetUser(int id)
-        //{
-        //    var user = await _context.Users.FindAsync(id);
+        [HttpGet("{id}")]
+        public async Task<JsonResult>  GetUser(int id)
+        {
+            var user = await _mediator.Send(new GetListAsyncByIdUserQuery() { IdUser = id });
 
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (user == null)
+            {
+                return new JsonResult(new {  });
+            }
 
-        //    return user;
-        //}
+            return new JsonResult(new { user = user.Data });
+
+        }
+        [HttpGet("{id}/Summary")]
+        public async Task<JsonResult> GetSummary(int id)
+        {
+            var user = await _mediator.Send(new GetListAsyncByIdUserSummaryQuery() { IdUser = id });
+
+            if (user == null)
+            {
+                return new JsonResult(new { });
+            }
+
+            return new JsonResult(new { user = user.Data });
+
+        }
 
         //// PUT: api/Users/5
         //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
