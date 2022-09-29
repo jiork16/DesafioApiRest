@@ -19,11 +19,13 @@ namespace DesafioJordanRodriguesApiRest.Data.Repositories
     {
         private readonly IRepositoryAsync<User> _repository;
         private readonly IRepositoryAsync<Goal> _repositoryGoal;
+        private readonly IRepositoryAsync<Goaltransaction> _repositoryGoalTransaction;
         public IQueryable<User> User => _repository.Entities;
-        public UserRepository(IRepositoryAsync<User> repository, IRepositoryAsync<Goal> repositoryGoal)
+        public UserRepository(IRepositoryAsync<User> repository, IRepositoryAsync<Goal> repositoryGoal, IRepositoryAsync<Goaltransaction> repositoryGoalTransaction)
         {
             _repository = repository;
             _repositoryGoal = repositoryGoal;
+            _repositoryGoalTransaction = repositoryGoalTransaction;
         }
         public async Task<User> GetByIdAsync(int id)
         {
@@ -129,6 +131,44 @@ namespace DesafioJordanRodriguesApiRest.Data.Repositories
                 }).ToListAsync();
 
             return await list;
+
+        }
+        public async Task<List<GoalDetailResponse>> GetListGoalDetailAsync(int idUser, int idGoal)
+        {
+            IQueryable<GoalDetailResponse> list = (IQueryable<GoalDetailResponse>)_repositoryGoalTransaction.Entities
+                 .Where(p => p.ownerid == idUser && p.goalid == idGoal)
+                 .Include(Goal => Goal.Goal)
+                 .Include(Portfolio => Portfolio.Goal.Portfolio)
+                 .Include(Goalcategory => Goalcategory.Goal.Goalcategory)
+                  //.ToList()
+                  .GroupBy(c => new {
+                      Title = c.Goal.title,
+                      Years = c.Goal.years,
+                      Monthlycontribution = c.Goal.monthlycontribution,
+                      Targetamount = c.Goal.targetamount,
+                      Initialinvestment = c.Goal.initialinvestment,
+                      InancialentityTitle = c.Goal.Financialentity.title,
+                      PortfolioTitle = c.Goal.Portfolio.title,
+                      Created = c.date,
+                      GoalcategoryTitle = c.Goal.Goalcategory.title
+                  })
+            .Select(c => new GoalDetailResponse
+            {
+                TituloMeta = c.Key.Title,
+                Años = c.Key.Years,
+                AporteMensaul = c.Key.Monthlycontribution,
+                MontoObjetivo = c.Key.Targetamount,
+                InversionInicial = c.Key.Initialinvestment,
+                EntidadFinanciera = c.Key.InancialentityTitle,
+                PortafolioCompleto = c.Key.PortfolioTitle,
+                FechaCreacion = c.Key.Created,
+                CategoriaMeta = c.Key.GoalcategoryTitle,
+                PorcentajeCumplimientoMeta = ((c.Key.Initialinvestment + c.Key.Monthlycontribution) * 100) / c.Key.Targetamount,
+                TotalAportes = (decimal)c.Sum(a => a.amount > 0 ? a.amount : 0),
+                TotalRetiro = (decimal)c.Sum(a => a.amount > 0 ? 0 : a.amount)
+            });
+
+            return await list.ToListAsync();
 
         }
     }

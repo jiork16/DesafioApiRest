@@ -20,7 +20,7 @@ namespace DesafioJordanRodriguesApiRest.Domain.Entities
         public int monthlycontribution { get; set; }
         public int targetamount { get; set; }
         public int id { get; set; }
-        [ForeignKey("advisorid")]
+        [ForeignKey("userid")]
         public int userid { get; set; }
         public User User { get; set; }
 

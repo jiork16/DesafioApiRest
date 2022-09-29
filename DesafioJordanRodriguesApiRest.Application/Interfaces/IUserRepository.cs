@@ -17,5 +17,6 @@ namespace DesafioJordanRodriguesApiRest.Application.Interfaces
         Task<User> GetByIdAsync(int UserId);
         Task<DataTable> GetSumaryAsync(int id);
         Task<DataTable> GetSumaryDateAsync(int id, DateTime date);
+        Task<List<GoalDetailResponse>> GetListGoalDetailAsync(int idUser, int idGoal);
     }
 }
