@@ -21,13 +21,13 @@ namespace DesafioJordanRodriguesApiRest.Controllers
             _mediator = mediator;
         }
 
-        // GET: api/Users
-        [HttpGet]
-        public async Task<List<Application.Features.UserResponse>> GetUsers()
-        {
-            var consult = await _mediator.Send(new GetListAsyncUserQuery());
-            return consult.Data;
-        }
+        //// GET: api/Users
+        //[HttpGet]
+        //public async Task<List<Application.Features.UserResponse>> GetUsers()
+        //{
+        //    var consult = await _mediator.Send(new GetListAsyncUserQuery());
+        //    return consult.Data;
+        //}
 
         //// GET: api/Users/5
         [HttpGet("{id}")]

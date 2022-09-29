@@ -10,8 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
+
 
 
 namespace DesafioJordanRodriguesApiRest
@@ -29,7 +31,11 @@ namespace DesafioJordanRodriguesApiRest
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ChallengeContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IdentityConnection")));
-            //services.AddControllers();
+            services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApp1", Version = "v1" });
+            });
             services.AddControllers().AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
@@ -55,7 +61,11 @@ namespace DesafioJordanRodriguesApiRest
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "DesafioJordanRodriguesApiRest");
+            });
             app.UseHttpsRedirection();
 
             app.UseRouting();
